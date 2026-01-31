@@ -119,3 +119,42 @@ function togglePageFullscreen() {
 }
 
 ;
+
+// === add copy current time ===
+
+
+function formatTime(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
+  return [
+    h.toString().padStart(2, '0'),
+    m.toString().padStart(2, '0'),
+    s.toString().padStart(2, '0')
+  ].join(':');
+}
+
+// ==== become checkmark green ===
+function copyCurrentTime() {
+  if (!player) return;
+
+  const seconds = Math.floor(player.getCurrentTime());
+  const timeStr = formatTime(seconds);
+
+  navigator.clipboard.writeText(timeStr).then(() => {
+    const btn = document.getElementById("copyBtn");
+    const originalText = btn.textContent;
+
+    btn.textContent = "✔ Copied!";
+    btn.classList.add("copy-success");
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.classList.remove("copy-success");
+    }, 1200);
+  }).catch(() => {
+    alert("Copy failed");
+  });
+}
+

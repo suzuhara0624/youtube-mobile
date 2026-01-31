@@ -5,6 +5,11 @@
   <title>YouTube Controller</title>
   <style>
 
+.copy-success {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: white;
+}
+
 .version-tag {
   position: fixed;
   bottom: 12px;
@@ -22,6 +27,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+ background: #888;   /* gray */
     }
 
 
@@ -53,8 +59,32 @@
 width: 400px;
   height: 200px; 
  position: absolute;   /* 👈 REQUIRED */
-  top: 70%;            /* move down */
+ top: 500px;            /* move down */
   left: 20px;           /* move right */     
+}
+
+.controls button {
+  font-size: 30px;
+  background: #444;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.controls button:active {
+  transform: scale(0.96);
+}
+.controls input {
+  background: #444;      /* dark gray */
+  color: white;          /* text color */
+  font-size: 22px;       /* slightly smaller than buttons */
+  
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
 }
 
     .side-controls {
@@ -167,6 +197,10 @@ right: 8px;
 
   <!-- CONTROLS BELOW VIDEO -->
   <div class="controls">
+
+<button id="copyBtn" onclick="copyCurrentTime()">Copy current time</button>
+
+<br /> <br />
 
 <form onsubmit="jumpTime(); return false;">
   <input id="timeInput" placeholder="HH:mm:ss (e.g. 01:23:45)" />
