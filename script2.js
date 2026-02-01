@@ -79,22 +79,7 @@ function changeVideo() {
   history.replaceState(null, '', `?v=${videoId}`);
 }
 
-// ================= Fullscreen + rotate =================
-function requestLandscape() {
-  if (screen.orientation?.lock) {
-    screen.orientation.lock("landscape").catch(() => {});
-  }
-}
 
-function unlockOrientation() {
-  if (screen.orientation?.unlock) {
-    screen.orientation.unlock();
-  }
-}
-
-document.addEventListener("fullscreenchange", () => {
-  document.fullscreenElement ? requestLandscape() : unlockOrientation();
-})
 
 
 
