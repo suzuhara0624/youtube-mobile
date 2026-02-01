@@ -96,6 +96,9 @@ document.addEventListener("fullscreenchange", () => {
   document.fullscreenElement ? requestLandscape() : unlockOrientation();
 })
 
+// ==== make redbar appear in single click ===
+
+const SEEK_STEP = 5;
 
 
 // ==== something new ====
@@ -240,11 +243,17 @@ const btnRight = document.getElementById("btnRight");
 btnLeft.addEventListener("click", e => {
   e.stopPropagation();
   e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(-SEEK_STEP); // 👈 visual only
 });
 
 btnRight.addEventListener("click", e => {
   e.stopPropagation();
   e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(SEEK_STEP); // 👈 visual only
 });
 
 // double click = real action
