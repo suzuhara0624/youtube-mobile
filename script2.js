@@ -219,6 +219,17 @@ function hideSideButtons() {
   });
 }
 
+const playerContainer = document.getElementById("player-container");
+
+// PC: mouse movement
+playerContainer.addEventListener("mousemove", () => {
+  showSideButtons();
+});
+
+// Android / touch screens
+playerContainer.addEventListener("touchstart", () => {
+  showSideButtons();
+}, { passive: true });
 
 // ================= Double-click only seek =================
 
@@ -238,13 +249,14 @@ btnRight.addEventListener("click", e => {
 
 // double click = real action
 btnLeft.addEventListener("dblclick", e => {
+  e.stopPropagation();
   e.preventDefault();
   showSideButtons();
-
   seekBy(-5);
 });
 
 btnRight.addEventListener("dblclick", e => {
+  e.stopPropagation();
   e.preventDefault();
   showSideButtons();
   seekBy(5);
