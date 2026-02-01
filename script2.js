@@ -194,3 +194,58 @@ function showFakeOverlay(amountSeconds) {
   }, 1000);
 }
 
+
+//===== hide left right =====
+
+let buttonHideTimer = null;
+function showSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0.75";
+    btn.style.pointerEvents = "auto";
+  });
+
+  clearTimeout(buttonHideTimer);
+  buttonHideTimer = setTimeout(hideSideButtons, 1500);
+}
+
+function hideSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0";
+    btn.style.pointerEvents = "none";
+  });
+}
+
+
+// ================= Double-click only seek =================
+
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+// block single click completely
+btnLeft.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+});
+
+btnRight.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+});
+
+// double click = real action
+btnLeft.addEventListener("dblclick", e => {
+  e.preventDefault();
+  showSideButtons();
+
+  seekBy(-5);
+});
+
+btnRight.addEventListener("dblclick", e => {
+  e.preventDefault();
+  showSideButtons();
+  seekBy(5);
+});
