@@ -105,7 +105,17 @@ function seekBy(seconds) {
   const current = player.getCurrentTime();
   const target = Math.max(0, current + seconds);
   player.seekTo(target, true);
+
+  showFakeOverlay(seconds);
+
+  // optional: nudge YouTube UI
+  if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+    setTimeout(() => player.playVideo(), 70);
+  }
 }
+
+
 
 // === fullscreen ===
 function togglePageFullscreen() {
@@ -156,5 +166,31 @@ function copyCurrentTime() {
   }).catch(() => {
     alert("Copy failed");
   });
+}
+
+//===overlay fakebar 1 ===//
+
+let overlayTimer = null;
+
+function showFakeOverlay(amountSeconds) {
+  const overlay = document.getElementById("fakeOverlay");
+  const seekText = document.getElementById("seekAmount");
+  const timeText = document.getElementById("timeText");
+
+  const current = Math.floor(player.getCurrentTime());
+  const total = Math.floor(player.getDuration());
+
+  seekText.textContent =
+    (amountSeconds > 0 ? "+" : "") + amountSeconds;
+
+  timeText.textContent =
+    `${formatTime(current)} / ${formatTime(total)}`;
+
+  overlay.classList.add("show");
+
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => {
+    overlay.classList.remove("show");
+  }, 1000);
 }
 
