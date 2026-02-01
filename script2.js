@@ -105,14 +105,6 @@ function seekBy(seconds) {
   const current = player.getCurrentTime();
   const target = Math.max(0, current + seconds);
   player.seekTo(target, true);
-
-  showFakeOverlay(seconds);
-
-  // optional: nudge YouTube UI
-  if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-    player.pauseVideo();
-    setTimeout(() => player.playVideo(), 70);
-  }
 }
 
 
