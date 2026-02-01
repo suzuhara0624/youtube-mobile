@@ -152,6 +152,8 @@ width: 900px;
       display: flex;
       flex-direction: column;
       gap: 0px;
+  transition: transform 0.2s ease;
+
     }
 
 .side-controls.left {
@@ -164,8 +166,13 @@ width: 900px;
 .side-controls.right {
   right: 8px;
   left: auto;
+
+
 }
 
+.side-controls.pause-shift {
+  transform: translateY(calc(-50% - 120px));
+}
 
     .side-controls button {
       width: 200px;
@@ -174,7 +181,7 @@ width: 900px;
       font-weight: bold;
       border: none;
       border-radius: 8px;
-      background: rgba(0, 0, 0, 0.0);
+      background: rgba(0, 0, 0, 0.7);
       color: white;
 
   opacity: 0;
@@ -294,8 +301,7 @@ right: 8px;
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="script.js"></script>
-<div class="version-tag">ver 1.000005</div>
+<div class="version-tag">ver 0.02</div>
 
 </body>
 </html>
-

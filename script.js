@@ -27,7 +27,8 @@ function onYouTubeIframeAPIReady() {
           player.seekTo(seconds, true);
         }
       }
-    }
+    },
+onStateChange: handlePlayerStateChange
   }
 });
 
@@ -287,3 +288,15 @@ btnRight.addEventListener("dblclick", e => {
   showSideButtons();
   seekBy(5);
 });
+
+
+function handlePlayerStateChange(e) {
+  const rightControls = document.querySelector('.side-controls.right');
+  if (!rightControls) return;
+
+  if (e.data === YT.PlayerState.PAUSED) {
+    rightControls.classList.add("pause-shift");
+  } else {
+    rightControls.classList.remove("pause-shift");
+  }
+}
