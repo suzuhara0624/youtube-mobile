@@ -107,8 +107,6 @@ function seekBy(seconds) {
   player.seekTo(target, true);
 }
 
-
-
 // === fullscreen ===
 function togglePageFullscreen() {
   const container = document.getElementById("player-container");
@@ -158,31 +156,5 @@ function copyCurrentTime() {
   }).catch(() => {
     alert("Copy failed");
   });
-}
-
-//===overlay fakebar 1 ===//
-
-let overlayTimer = null;
-
-function showFakeOverlay(amountSeconds) {
-  const overlay = document.getElementById("fakeOverlay");
-  const seekText = document.getElementById("seekAmount");
-  const timeText = document.getElementById("timeText");
-
-  const current = Math.floor(player.getCurrentTime());
-  const total = Math.floor(player.getDuration());
-
-  seekText.textContent =
-    (amountSeconds > 0 ? "+" : "") + amountSeconds;
-
-  timeText.textContent =
-    `${formatTime(current)} / ${formatTime(total)}`;
-
-  overlay.classList.add("show");
-
-  clearTimeout(overlayTimer);
-  overlayTimer = setTimeout(() => {
-    overlay.classList.remove("show");
-  }, 1000);
 }
 
