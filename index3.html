@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTube Controller</title>
+  <style>
+
+
+/* ===== Fake seek overlay ===== */
+#fakeOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+#fakeOverlay.show {
+  opacity: 1;
+}
+
+#fakeOverlay.show {
+  opacity: 1;
+}
+
+/* Big +5 / -5 */
+#seekAmount {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px black;
+}
+
+/* Red decorative bar */
+#fakeBar {
+  position: absolute;
+  bottom: 8%;          /* 👈 adjust THIS */
+  left: 15%;
+  width: 70%;
+  height: 6px;
+  background: red;
+  border-radius: 3px;
+}
+
+/* Time text */
+#timeText {
+  position: absolute;
+  bottom: calc(8% - 24px);  /* 👈 below the red bar */
+  left: 15%;
+  font-size: 18px;
+  color: white;
+  opacity: 0.9;
+  text-shadow: 0 0 6px black;
+}
+
+
+/* ===== end fakebar ===== */
+
+.copy-success {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: white;
+}
+
+.version-tag {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  border-radius: 6px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+ background: #757575;   /* gray */
+    }
+
+
+#player-container {
+  position: relative;
+  width: 800px;
+  aspect-ratio: 16 / 9;
+  background: black;
+
+ display: flex;
+  align-items: center;
+  justify-content: center;
+
+
+}
+
+/* When page fullscreen */
+#player-container:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+#player iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.controls {
+width: 900px;
+  height: 200px; 
+ position: absolute;   /* 👈 REQUIRED */
+ top: 500px;            /* move down */
+  left: 20px;           /* move right */     
+}
+
+.controls button {
+  font-size: 30px;
+  background: #3A3A3A;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.controls button:active {
+  transform: scale(0.96);
+}
+.controls input {
+width: 900px;
+  height: 80px;
+  background: #444;      /* dark gray */
+  color: white;          /* text color */
+  font-size: 80px;       /* slightly smaller than buttons */
+  
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+    .side-controls {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+  transition: transform 0.2s ease;
+
+    }
+
+.side-controls.left {
+  left: 8px;
+  right: auto;
+
+
+}
+
+.side-controls.right {
+  right: 8px;
+  left: auto;
+
+
+}
+
+.side-controls.pause-shift {
+  transform: translateY(calc(-50% - 70px));
+}
+
+    .side-controls button {
+      width: 200px;
+      height: 250px;
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+
+  opacity: 0;
+  pointer-events: none;
+     transform-origin: center center;
+ }
+
+.side-controls.left button {
+  text-align: left;
+  padding-left: 16px;   /* so it’s not glued to the edge */
+
+  transform-origin: right center;
+
+}
+.side-controls.right button {
+  text-align: right;
+  padding-right: 16px;
+
+  transform-origin: left center;
+
+}
+
+    .side-controls button:active {
+      opacity: 1;
+      transform: none;
+    }
+
+.side-controls button.double-press {
+  transform: scaleX(0.95);
+  transition: transform 0.1s ease;
+}
+/*new add*/
+
+  .fullscr-controls {
+      position: absolute;
+bottom: 8px;
+right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+.fullscr-controls button {
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      opacity: 0.75;
+    }
+
+    .fullscr-controls button:active {
+      opacity: 1;
+      transform: scale(0.95);
+    }
+/*  new */
+
+    input {
+      width: 300px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PLAYER AREA  -->
+  <div id="player-container">
+    <div id="player"></div>
+
+<div id="fakeOverlay">
+  <div id="seekAmount">-5</div>
+  <div id="fakeBar"></div>
+  <div id="timeText">00:00:00 / 00:00:00</div>
+</div>
+
+    <!-- left SIDE -->
+<div class="side-controls left">
+  <button id="btnLeft">&lt;</button>
+</div>
+
+ <!-- right SIDE -->
+
+<div class="side-controls right">
+  <button id="btnRight">&gt;</button>
+</div>
+
+
+   <!-- fullscr SIDE -->
+<div class="fullscr-controls">
+  <button onclick="togglePageFullscreen()">⛶</button>
+</div>
+
+  </div>
+
+  <!-- CONTROLS BELOW VIDEO -->
+  <div class="controls">
+
+<button id="copyBtn" onclick="copyCurrentTime()">Copy current time</button>
+
+<br /> <br />
+
+<form onsubmit="jumpTime(); return false;">
+  <input id="timeInput" placeholder="HH:mm:ss (01:00:00)" />
+  <button type="submit">Jump Time</button>
+</form>
+    <br />
+
+    <form onsubmit="changeVideo(); return false;">
+  <input id="urlInput" placeholder="YouTube URL or ID" />
+  <button type="submit">Change Video</button>
+</form>
+
+  </div>
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="script3.js"></script>
+<div class="version-tag">ver 9999999999</div>
+
+</body>
+</html>
