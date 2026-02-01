@@ -96,6 +96,9 @@ document.addEventListener("fullscreenchange", () => {
   document.fullscreenElement ? requestLandscape() : unlockOrientation();
 })
 
+// ==== make redbar appear in single click ===
+
+const SEEK_STEP = 5;
 
 
 // ==== something new ====
@@ -194,3 +197,93 @@ function showFakeOverlay(amountSeconds) {
   }, 1000);
 }
 
+
+//===== hide left right =====
+
+let buttonHideTimer = null;
+function showSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0.75";
+    btn.style.pointerEvents = "auto";
+  });
+
+  clearTimeout(buttonHideTimer);
+  buttonHideTimer = setTimeout(hideSideButtons, 1500);
+}
+
+function hideSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0";
+    btn.style.pointerEvents = "none";
+  });
+}
+
+const playerContainer = document.getElementById("player-container");
+
+// PC: mouse movement
+playerContainer.addEventListener("mousemove", () => {
+  showSideButtons();
+});
+
+// Android / touch screens
+playerContainer.addEventListener("touchstart", () => {
+  showSideButtons();
+}, { passive: true });
+
+// ================= Double-click only seek =================
+
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+// block single click completely
+btnLeft.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(-SEEK_STEP); // 👈 visual only
+});
+
+btnRight.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(SEEK_STEP); // 👈 visual only
+});
+
+// double click = real action
+
+
+function applyDoublePressEffect(btn) {
+  btn.classList.add("double-press");
+
+  setTimeout(() => {
+    btn.classList.remove("double-press");
+  }, 120); // short = feels like native press
+}
+
+
+btnLeft.addEventListener("dblclick", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  applyDoublePressEffect(btnLeft);
+
+  showSideButtons();
+  seekBy(-5);
+});
+
+btnRight.addEventListener("dblclick", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  applyDoublePressEffect(btnRight);
+
+  showSideButtons();
+  seekBy(5);
+});
