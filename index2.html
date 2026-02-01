@@ -5,10 +5,60 @@
   <title>YouTube Controller</title>
   <style>
 
-#player-container {
-  touch-action: manipulation;
+
+/* ===== Fake seek overlay ===== */
+#fakeOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
+#fakeOverlay.show {
+  opacity: 1;
+}
+
+#fakeOverlay.show {
+  opacity: 1;
+}
+
+/* Big +5 / -5 */
+#seekAmount {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px black;
+}
+
+/* Red decorative bar */
+#fakeBar {
+  position: absolute;
+  bottom: 8%;          /* 👈 adjust THIS */
+  left: 15%;
+  width: 70%;
+  height: 6px;
+  background: red;
+  border-radius: 3px;
+}
+
+/* Time text */
+#timeText {
+  position: absolute;
+  bottom: calc(8% - 24px);  /* 👈 below the red bar */
+  left: 15%;
+  font-size: 18px;
+  color: white;
+  opacity: 0.9;
+  text-shadow: 0 0 6px black;
+}
+
+
+/* ===== end fakebar ===== */
 
 .copy-success {
   background: rgba(0, 0, 0, 0.4) !important;
@@ -184,6 +234,12 @@ right: 8px;
   <div id="player-container">
     <div id="player"></div>
 
+<div id="fakeOverlay">
+  <div id="seekAmount">-5</div>
+  <div id="fakeBar"></div>
+  <div id="timeText">00:00:00 / 00:00:00</div>
+</div>
+
     <!-- LEFT SIDE -->
 <div class="side-controls left">
   <button onclick="seekBy(-5)">&lt;</button>
@@ -224,8 +280,8 @@ right: 8px;
 
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="script2.js"></script>
-<div class="version-tag">ver 888888</div>
+  <script src="script.js"></script>
+<div class="version-tag">ver 1.000005</div>
 
 </body>
 </html>

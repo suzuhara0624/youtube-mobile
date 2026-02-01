@@ -79,7 +79,22 @@ function changeVideo() {
   history.replaceState(null, '', `?v=${videoId}`);
 }
 
+// ================= Fullscreen + rotate =================
+function requestLandscape() {
+  if (screen.orientation?.lock) {
+    screen.orientation.lock("landscape").catch(() => {});
+  }
+}
 
+function unlockOrientation() {
+  if (screen.orientation?.unlock) {
+    screen.orientation.unlock();
+  }
+}
+
+document.addEventListener("fullscreenchange", () => {
+  document.fullscreenElement ? requestLandscape() : unlockOrientation();
+})
 
 
 
@@ -90,7 +105,17 @@ function seekBy(seconds) {
   const current = player.getCurrentTime();
   const target = Math.max(0, current + seconds);
   player.seekTo(target, true);
+
+  showFakeOverlay(seconds);
+
+  // optional: nudge YouTube UI
+  if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+    setTimeout(() => player.playVideo(), 70);
+  }
 }
+
+
 
 // === fullscreen ===
 function togglePageFullscreen() {
@@ -142,18 +167,30 @@ function copyCurrentTime() {
     alert("Copy failed");
   });
 }
-//== block double tap ===
-// Block double-click
-document.addEventListener('dblclick', function (e) {
-  e.preventDefault();
-});
 
-// Block double-tap zoom (mobile)
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (e) {
-  const now = Date.now();
-  if (now - lastTouchEnd <= 300) {
-    e.preventDefault();
-  }
-  lastTouchEnd = now;
-}, { passive: false });
+//===overlay fakebar 1 ===//
+
+let overlayTimer = null;
+
+function showFakeOverlay(amountSeconds) {
+  const overlay = document.getElementById("fakeOverlay");
+  const seekText = document.getElementById("seekAmount");
+  const timeText = document.getElementById("timeText");
+
+  const current = Math.floor(player.getCurrentTime());
+  const total = Math.floor(player.getDuration());
+
+  seekText.textContent =
+    (amountSeconds > 0 ? "+" : "") + amountSeconds;
+
+  timeText.textContent =
+    `${formatTime(current)} / ${formatTime(total)}`;
+
+  overlay.classList.add("show");
+
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => {
+    overlay.classList.remove("show");
+  }, 1000);
+}
+
