@@ -63,6 +63,28 @@
 
 /* ===== end fakebar ===== */
 
+.controls-facebook {
+width: 900px;
+  height: 800px; 
+ position: absolute;   /* 👈 REQUIRED */
+ top: 885px;            /* move down */
+left: 22px;           /* move right */ 
+background: #252121;
+  padding: 3px;
+    
+  border-radius: 4px;
+
+
+}
+.fb-scale {
+  transform: scale(0.97);
+  transform-origin: top left;
+  width: 920px;
+  filter: invert(1) hue-rotate(180deg);
+
+}
+
+
 .copy-success {
   background: rgba(0, 0, 0, 0.4) !important;
   color: white;
@@ -252,6 +274,11 @@ right: 8px;
 </head>
 <body>
 
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous"
+  src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0">
+</script>
+
   <!-- PLAYER AREA  -->
   <div id="player-container">
     <div id="player"></div>
@@ -279,7 +306,22 @@ right: 8px;
   <button onclick="togglePageFullscreen()">⛶</button>
 </div>
 
+  <!-- new fb control screen -->
+
+ <!-- facebook-->
+<div class="controls-facebook">
+  <div class="fb-scale">
+    <div
+      class="fb-comments"
+  data-href="https://suzuhara0624.github.io/youtube/comments.html"
+  data-width="920"
+  data-numposts="5"
+data-colorscheme="dark"
+data-order-by="reverse_time"
+>
+    </div>
   </div>
+</div>
 
   <!-- CONTROLS BELOW VIDEO -->
   <div class="controls">
