@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<!-- this is version 0.02 -->
+<!-- this is version 0.04 -->
 
 <html lang="en">
 <head>
@@ -62,6 +62,39 @@
 
 
 /* ===== end fakebar ===== */
+
+.controls-facebook {
+width: 900px;
+  height: 500px; 
+ position: absolute;   /* 👈 REQUIRED */
+ top: 885px;            /* move down */
+left: 22px;           /* move right */ 
+background: #252121;
+  padding: 3px;
+    
+  border-radius: 4px;
+  overflow: hidden;
+
+}
+
+.comment-scroll { height: 100%; 
+overflow-y: auto; 
+}
+
+
+.comment-scroll::-webkit-scrollbar {
+  width: 0px;
+}
+
+
+.fb-scale {
+  transform: scale(0.97);
+  transform-origin: top left;
+  width: 920px;
+  filter: invert(1) hue-rotate(180deg);
+
+}
+
 
 .copy-success {
   background: rgba(0, 0, 0, 0.4) !important;
@@ -252,33 +285,69 @@ right: 8px;
 </head>
 <body>
 
+
   <!-- PLAYER AREA  -->
   <div id="player-container">
-    <div id="player"></div>
+          <div id="player"></div>
 
-<div id="fakeOverlay">
-  <div id="seekAmount">-5</div>
-  <div id="fakeBar"></div>
-  <div id="timeText">00:00:00 / 00:00:00</div>
-</div>
+          <div id="fakeOverlay">
+              <div id="seekAmount">-5</div>
+              <div id="fakeBar"></div>
+              <div id="timeText">00:00:00 / 00:00:00</div>
+          </div>
 
     <!-- left SIDE -->
-<div class="side-controls left">
-  <button id="btnLeft">&lt;</button>
-</div>
+            <div class="side-controls left">
+            <button id="btnLeft">&lt;</button>
+            </div>
 
  <!-- right SIDE -->
 
-<div class="side-controls right">
-  <button id="btnRight">&gt;</button>
-</div>
+            <div class="side-controls right">
+            <button id="btnRight">&gt;</button>
+            </div>
 
 
    <!-- fullscr SIDE -->
-<div class="fullscr-controls">
-  <button onclick="togglePageFullscreen()">⛶</button>
+           <div class="fullscr-controls">
+           <button onclick="togglePageFullscreen()">⛶</button>
+           </div>
 </div>
+  <!-- new fb control screen -->
 
+<!-- facebook-->
+<div class="controls-facebook">
+
+     <div class="comment-scroll">
+   
+	
+	<script src="https://utteranc.es/client.js"
+        repo="suzuhara0624/youtube"
+        issue-number="2"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+	</script>
+
+<script>
+window.addEventListener("load", function () {
+  const tryScroll = setInterval(() => {
+    const scrollBox = document.querySelector(".comment-scroll");
+    const iframe = document.querySelector(".utterances-frame");
+
+    if (scrollBox && iframe) {
+      setTimeout(() => {
+        scrollBox.scrollTop = scrollBox.scrollHeight;
+      }, 1500);
+
+      clearInterval(tryScroll);
+    }
+  }, 100);
+});
+</script>
+
+		
+    </div>
   </div>
 
   <!-- CONTROLS BELOW VIDEO -->
@@ -314,7 +383,8 @@ autocomplete="off"
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="script.js"></script>
-<div class="version-tag">ver 0.03</div>
+<div class="version-tag">ver 0.04</div>
 
 </body>
+
 </html>
