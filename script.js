@@ -312,7 +312,7 @@ btnLeft.addEventListener("dblclick", e => {
   applyDoublePressEffect(btnLeft);
 
   showSideButtons();
-  seekBy(-5);
+  seekBy(-7);
 });
 
 btnRight.addEventListener("dblclick", e => {
@@ -322,7 +322,7 @@ btnRight.addEventListener("dblclick", e => {
   applyDoublePressEffect(btnRight);
 
   showSideButtons();
-  seekBy(5);
+  seekBy(7);
 });
 
 
@@ -335,4 +335,5 @@ function handlePlayerStateChange(e) {
   } else {
     rightControls.classList.remove("pause-shift");
   }
+
 }
