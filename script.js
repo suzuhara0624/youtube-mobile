@@ -1,3 +1,7 @@
+// ----- this is version 0.05 -----
+
+
+
 let player;
 
 const DEFAULT_VIDEO_ID = "zeGYRwOJOho";
@@ -9,30 +13,36 @@ function getQueryParam(name) {
 
 // ================= YouTube API =================
 function onYouTubeIframeAPIReady() {
-  const videoId = getQueryParam("v") || DEFAULT_VIDEO_ID;
-  const timeParam = getQueryParam("t");
+  const init = () => {
+    const videoId = getQueryParam("v") || DEFAULT_VIDEO_ID;
+    const timeParam = getQueryParam("t");
 
- player = new YT.Player("player", {
-  videoId: videoId,
-  playerVars: {
-    playsinline: 1,
-    mute: 1   // 👈 THIS is the key for mobile
-  },
-  events: {
-    onReady: () =>{
-
-      if (timeParam) {
-        const seconds = parseTime(timeParam);
-        if (seconds !== null) {
-          player.seekTo(seconds, true);
-        }
+    player = new YT.Player("player", {
+      videoId: videoId,
+      playerVars: {
+        playsinline: 1,
+        mute: 1
+      },
+      events: {
+        onReady: () => {
+          if (timeParam) {
+            const seconds = parseTime(timeParam);
+            if (seconds !== null) {
+              player.seekTo(seconds, true);
+            }
+          }
+        },
+        onStateChange: handlePlayerStateChange
       }
-    }
+    });
+  };
+
+  if (document.readyState === "complete") {
+    init();
+  } else {
+    window.addEventListener("load", init);
   }
-});
-
 }
-
 
 // ================= Time helpers =================
 function parseTime(str) {
@@ -55,14 +65,42 @@ function jumpTime() {
 
 // ================= Video change =================
 function extractVideoId(input) {
-  const match = input.match(/[?&]v=([^&]+)/);
-  if (match) return match[1];
+  if (!input) return null;
 
-  const short = input.match(/youtu\.be\/([^?]+)/);
-  if (short) return short[1];
+  // Trim spaces
+  input = input.trim();
 
-  return input;
+  // If user already typed a clean 11-char ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+    return input;
+  }
+
+  try {
+    const url = new URL(input);
+
+    // youtu.be/VIDEOID
+    if (url.hostname.includes('youtu.be')) {
+      return url.pathname.slice(1, 12);
+    }
+
+    // youtube.com/watch?v=VIDEOID
+    if (url.searchParams.has('v')) {
+      return url.searchParams.get('v').slice(0, 11);
+    }
+
+    // youtube.com/live/VIDEOID
+    const liveMatch = url.pathname.match(/\/live\/([a-zA-Z0-9_-]{11})/);
+    if (liveMatch) {
+      return liveMatch[1];
+    }
+
+  } catch (e) {
+    // Not a valid URL, fall through
+  }
+
+  return null;
 }
+
 
 function changeVideo() {
   const input = document.getElementById('urlInput').value.trim();
@@ -72,6 +110,10 @@ function changeVideo() {
 
   player.loadVideoById(videoId);
 
+if (!videoId) {
+  alert('Invalid YouTube link or ID');
+  return;
+}
   // ✅ force mute again
   player.mute();
 
@@ -96,6 +138,9 @@ document.addEventListener("fullscreenchange", () => {
   document.fullscreenElement ? requestLandscape() : unlockOrientation();
 })
 
+// ==== make redbar appear in single click ===
+
+const SEEK_STEP = 5;
 
 
 // ==== something new ====
@@ -105,7 +150,17 @@ function seekBy(seconds) {
   const current = player.getCurrentTime();
   const target = Math.max(0, current + seconds);
   player.seekTo(target, true);
+
+  showFakeOverlay(seconds);
+
+  // optional: nudge YouTube UI
+  if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+    setTimeout(() => player.playVideo(), 70);
+  }
 }
+
+
 
 // === fullscreen ===
 function togglePageFullscreen() {
@@ -158,3 +213,163 @@ function copyCurrentTime() {
   });
 }
 
+//===overlay fakebar 1 ===//
+
+let overlayTimer = null;
+
+function showFakeOverlay(amountSeconds) {
+  const overlay = document.getElementById("fakeOverlay");
+  const seekText = document.getElementById("seekAmount");
+  const timeText = document.getElementById("timeText");
+
+  const current = Math.floor(player.getCurrentTime());
+  const total = Math.floor(player.getDuration());
+
+  seekText.textContent =
+    (amountSeconds > 0 ? "+" : "") + amountSeconds;
+
+  timeText.textContent =
+    `${formatTime(current)} / ${formatTime(total)}`;
+
+  overlay.classList.add("show");
+
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => {
+    overlay.classList.remove("show");
+  }, 1000);
+}
+
+
+//===== hide left right =====
+
+let buttonHideTimer = null;
+function showSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0.75";
+    btn.style.pointerEvents = "auto";
+  });
+
+  clearTimeout(buttonHideTimer);
+  buttonHideTimer = setTimeout(hideSideButtons, 1500);
+}
+
+function hideSideButtons() {
+  const buttons = document.querySelectorAll(".side-controls button");
+
+  buttons.forEach(btn => {
+    btn.style.opacity = "0";
+    btn.style.pointerEvents = "none";
+  });
+}
+
+const playerContainer = document.getElementById("player-container");
+
+// PC: mouse movement
+playerContainer.addEventListener("mousemove", () => {
+  showSideButtons();
+});
+
+// Android / touch screens
+playerContainer.addEventListener("touchstart", () => {
+  showSideButtons();
+}, { passive: true });
+
+// ================= Double-click only seek =================
+
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+// block single click completely
+btnLeft.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(-SEEK_STEP); // 👈 visual only
+});
+
+btnRight.addEventListener("click", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  showSideButtons();
+  showFakeOverlay(SEEK_STEP); // 👈 visual only
+});
+
+// double click = real action
+
+
+function applyDoublePressEffect(btn) {
+  btn.classList.add("double-press");
+
+  setTimeout(() => {
+    btn.classList.remove("double-press");
+  }, 120); // short = feels like native press
+}
+
+
+btnLeft.addEventListener("dblclick", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  applyDoublePressEffect(btnLeft);
+
+  showSideButtons();
+  seekBy(-7);
+});
+
+btnRight.addEventListener("dblclick", e => {
+  e.stopPropagation();
+  e.preventDefault();
+
+  applyDoublePressEffect(btnRight);
+
+  showSideButtons();
+  seekBy(7);
+});
+
+
+function handlePlayerStateChange(e) {
+  const rightControls = document.querySelector('.side-controls.right');
+  if (!rightControls) return;
+
+  if (e.data === YT.PlayerState.PAUSED) {
+    rightControls.classList.add("pause-shift");
+  } else {
+    rightControls.classList.remove("pause-shift");
+  }
+
+}
+
+// ================= jump random script =================
+function jumpRandomPercent() {
+  if (!player) return;
+
+  const duration = player.getDuration();
+  if (!duration) return;
+
+  const percent = Math.random();
+  const targetTime = duration * percent;
+
+  player.seekTo(targetTime, true);
+
+  // === UI feedback ===
+  const btn = document.getElementById("randomBtn");
+  const originalText = "Jump random";
+
+  // convert to nice percentage (e.g. 67%)
+const percentDisplay = Math.floor(percent * 100);
+
+// limit raw number to ~5 decimals (so it’s readable)
+  const rawDisplay = percent.toFixed(5);
+
+  btn.textContent = `→ ${percentDisplay}% (${rawDisplay})`;
+  btn.classList.add("copy-success"); // reuse your existing style
+
+  setTimeout(() => {
+    btn.textContent = originalText;
+    btn.classList.remove("copy-success");
+  }, 1500);
+}
