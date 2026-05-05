@@ -108,7 +108,7 @@ function changeVideo() {
 
   const videoId = extractVideoId(input);
 
-  player.loadVideoById(videoId);
+  player.cueVideoById(videoId);
 
 if (!videoId) {
   alert('Invalid YouTube link or ID');
